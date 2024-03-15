@@ -1,4 +1,6 @@
 from ships.ship import Ship
 
 class Cruiser(Ship):
-    pass
+    
+    def __init__(self):
+        super().__init__(1, 4)
