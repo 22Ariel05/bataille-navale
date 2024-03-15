@@ -11,6 +11,12 @@ class MyButton(tk.Button):
 
     def fonction(self):
         print(f'Vous avez appuyé sur le bouton {self.text[1]}.')
+        if self.text == "Leave the game":
+            self.master.quit()
+        elif self.text == "Player Vs Player":
+            self.master.destroy()  # Ferme la fenêtre actuelle
+            app = PlayerVsPlayer()  # Crée une nouvelle fenêtre pour le jeu joueur contre joueur
+            app.mainloop()        
 
 class GameChoice(tk.Frame):
     def __init__(self, master,):
