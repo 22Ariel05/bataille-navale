@@ -18,13 +18,13 @@ class Board:
             self.playzone[coordWherelanded[0], coordWherelanded[1]] = 3
 
     def isValdeShot(self, coords):
-        if (self.playzone[coordWherelanded[0], coordWherelanded[1]] == 0):
+        if (self.playzone[coords[0], coords[1]] == 0):
             return True
-        elif (self.playzone[coordWherelanded[0], coordWherelanded[1]] == 1):
+        elif (self.playzone[coords[0], coords[1]] == 1):
             return True
-        elif (self.playzone[coordWherelanded[0], coordWherelanded[1]] == 2):
+        elif (self.playzone[coords[0], coords[1]] == 2):
             return False
-        elif (self.playzone[coordWherelanded[0], coordWherelanded[1]] == 3):
+        elif (self.playzone[coords[0], coords[1]] == 3):
             return False
 
 
