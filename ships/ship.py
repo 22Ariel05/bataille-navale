@@ -25,4 +25,4 @@ class Ship:
         self.isPlaced = newIsPlaced
 
     def showInfo(self):
-        print(f"{self.isSunk} ,{self.height} ,{self.lenght},{self.isPlaced}")   
+        print(f"the ship is sunk: {self.isSunk}, this ships' height is {self.height}, this ship is {self.lenght} long, this ship is placed: {self.isPlaced}")   
