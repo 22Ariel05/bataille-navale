@@ -9,7 +9,7 @@ import numpy as np
 class Board:
     
     def __init__(self):
-        self.playzone = np.zeros(15, 15)
+        self.playzone = np.zeros(10, 10)
         
 
 def changeBordSituation(self, coordWherelanded):
