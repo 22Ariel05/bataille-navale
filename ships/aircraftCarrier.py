@@ -1,4 +1,4 @@
-from ships.ship import Ship
+from ship import Ship
 
 class AircraftCarrier(Ship):
     
