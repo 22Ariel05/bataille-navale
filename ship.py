@@ -38,6 +38,7 @@ class Ship:
         for shipNode in self.shipNode:
             if shipNode.getCoordlenght() == coordsOdHit[0] and shipNode.coordheight() == coordsOdHit[1]: 
                 shipNode.onHit()
+                
     def testIsSunk(self):
         for shipNode in self.shipNode:
             if shipNode.getIsNotHit():
