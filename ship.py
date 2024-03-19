@@ -3,9 +3,8 @@ from shipNode import ShipNode
 
 class Ship:
 
-    def __init__(self, lenght, height):
+    def __init__(self, lenght):
         self.lenght = lenght
-        self.height = height
         self.isSunk = False
         self.isPlaced = False
         self.shipNode = np.array(dtype=ShipNode)
@@ -29,10 +28,11 @@ class Ship:
         self.isPlaced = newIsPlaced
 
     def showInfo(self):
-        print(f"the ship is sunk: {self.isSunk}, this ships' height is {self.height}, this ship is {self.lenght} long, this ship is placed: {self.isPlaced}") 
+        print(f"the ship is sunk: {self.isSunk}, this ship is {self.lenght} long, this ship is placed: {self.isPlaced}") 
 
-    def whenPlaced(self, ):
-        pass
+    def whenPlaced(self, listOfcoords):
+        for i in range(len(listOfcoords)):
+            np.append(self.shipNode, ShipNode(listOfcoords[i,0], listOfcoords[i,1]))
 
     def testIsSunk(self):
         for shipNode in self.shipNode:
