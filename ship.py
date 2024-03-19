@@ -1,3 +1,6 @@
+import numpy as np
+from shipNode import ShipNode
+
 class Ship:
 
     def __init__(self, lenght, height):
@@ -5,6 +8,7 @@ class Ship:
         self.height = height
         self.isSunk = False
         self.isPlaced = False
+        self.shipNode = np.array(dtype=ShipNode)
 
     def getLenght(self):
         return self.lenght
@@ -25,4 +29,13 @@ class Ship:
         self.isPlaced = newIsPlaced
 
     def showInfo(self):
-        print(f"the ship is sunk: {self.isSunk}, this ships' height is {self.height}, this ship is {self.lenght} long, this ship is placed: {self.isPlaced}")   
+        print(f"the ship is sunk: {self.isSunk}, this ships' height is {self.height}, this ship is {self.lenght} long, this ship is placed: {self.isPlaced}") 
+
+    def whenPlaced(self, ):
+        pass
+
+    def testIsSunk(self):
+        for shipNode in self.shipNode:
+            if shipNode.getIsNotHit:
+                return False
+        return True
