@@ -3,7 +3,7 @@ from fleat import Fleat
 
 class Game:
     
-    def __init__(self, isAiOn):
+    def __init__(self, isAiOn = False):
         self.P1Board = Board()
         self.p2Board = Board()
 
