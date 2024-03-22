@@ -12,9 +12,6 @@ class Ship:
     def getLenght(self):
         return self.lenght
     
-    def getHeight(self):
-        return self.height
-    
     def getIsSunk(self):
         return self.isSunk
     
@@ -34,9 +31,9 @@ class Ship:
         for i in range(len(listOfcoords)):
             np.append(self.shipNode, ShipNode(listOfcoords[i,0], listOfcoords[i,1]))
 
-    def onHit(self, coordsOdHit):
+    def onHit(self, coordsOnHit):
         for shipNode in self.shipNode:
-            if shipNode.getCoordlenght() == coordsOdHit[0] and shipNode.coordheight() == coordsOdHit[1]: 
+            if shipNode.getCoordlenght() == coordsOnHit[0] and shipNode.getCoordheight() == coordsOnHit[1]: 
                 shipNode.onHit()
                 
     def testIsSunk(self):

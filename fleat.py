@@ -10,18 +10,18 @@ class Fleat:
         self.sub1 = Ship(1, 2)
         self.sub2 = Ship(1, 2)
 
-    def onHit(self):
-        if self.airCarry.onHit:
+    def onHit(self, coods):
+        if self.airCarry.onHit(coods):
             return
-        if self.cruser.onHit:
+        if self.cruser.onHit(coods):
             return
-        if self.destroy1.onHit:
+        if self.destroy1.onHit(coods):
             return
-        if self.destroy2.onHit:
+        if self.destroy2.onHit(coods):
             return
-        if self.sub1.onHit:
+        if self.sub1.onHit(coods):
             return
-        if self.sub2.onHit:
+        if self.sub2.onHit(coods):
             return
 
     def isFleatDestroyed(self):

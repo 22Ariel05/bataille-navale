@@ -11,3 +11,13 @@ class Game:
         self.p2Fleat = Fleat()
 
         self.isAiOn = isAiOn
+
+    def prepFase(self):
+        isStillPreping = True
+        while (isStillPreping):
+            pass
+
+    def combatFase(self):
+        while (not self.p1Fleat.isFleatDestroyed() or not self.p2Fleat.isFleatDestroyed()):
+            pass
+
