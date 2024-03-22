@@ -10,7 +10,7 @@ from ship import Ship
 class Board:
     
     def __init__(self):
-        self.playzone = np.zeros(10, 10)      
+        self.playzone = np.zeros((10, 10))      
 
     def changeBordSituation(self, coordWherelanded):
         if (self.playzone[coordWherelanded[0], coordWherelanded[1]] == 0):
