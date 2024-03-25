@@ -4,9 +4,12 @@ class Fleat:
     
     def __init__(self):
         self.airCarry = Ship(5)
+
         self.cruser = Ship(4)
+        
         self.destroy1 = Ship(3)
         self.destroy2 = Ship(3)
+        
         self.sub1 = Ship(2)
         self.sub2 = Ship(2)
 
