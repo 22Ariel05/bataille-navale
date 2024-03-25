@@ -53,7 +53,5 @@ class Board:
             return True
 
     def isValidPlacement(self, coords, rotate, ship):
-        if (self.playzone.noOtherShipsPlacedWherePlayerWants(coords, rotate, ship) or self.playzone.fitsWherePlayerWants(coords, rotate, ship)):
-            return True
-        else:
-            return False
+        return self.noOtherShipsPlacedWherePlayerWants(coords, rotate, ship) and self.fitsWherePlayerWants(coords, rotate, ship)
+

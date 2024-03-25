@@ -1,64 +1,189 @@
+from functools import partial
 import tkinter as tk
+import sys
+import os
 
-class MyButton(tk.Button):
-    def __init__(self, master, main_app, t):
-        super().__init__(master, text=t, width=20, height=2, bg='turquoise', fg='white', font=('Times New Roman', 20, 'bold'))
-        self.text = t
-        self.main_app = main_app
-        self.configure(command=self.fonction)
+current_dir = os.path.dirname(__file__)
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
+from board import Board
+from fleat import Fleat
 
-    def fonction(self):
-        print(f'Vous avez appuyé sur le bouton {self.text}.')
-        if self.text == "Leave the game":
-            self.main_app.quit_game()
-        elif self.text == "Player Vs Player":
-            self.main_app.init_player_vs_player()
+class Board:
+    def __init__(self):
+        self.playzone = [[0 for _ in range(10)] for _ in range(10)]
 
-class GameChoice(tk.Frame):
-    def __init__(self, master, main_app):
-        super().__init__(master, bg='light blue')
-        self.grid(row=0, column=0, sticky="nsew")
-        self.main_app = main_app
-        self.create_buttons()
+class Fleat:
+    def __init__(self):
+        self.ships = {'Destroyer': 2, 'Submarine': 3, 'Cruiser': 3, 'Battleship': 4, 'Carrier': 5}
+        self.placed_ships = {}
 
-    def create_buttons(self):
-        texts = ['Player Vs Player', 'Player Vs Bot', 'Leave the game']
-        for i, text in enumerate(texts):
-            button = MyButton(self, self.main_app, text)
-            button.grid(row=i, column=0, padx=20, pady=20)
+
+class TitleText(tk.Label):
+    def __init__(self, master, t):
+        super().__init__(master, text=t, bg="light blue", fg='black', font=('Times New Roman', 30, "bold"))
 
 class Menu(tk.Tk):
     def __init__(self):
         super().__init__()
         self.configure(bg='light blue')
-        self.state('zoomed')
-        self.geometry('1000x800+400+0')
         self.title("Bataille Navale")
-        self.create_menu()
+        self.geometry("1200x600")
+        self.p1Board = Board()
+        self.p2Board = Board()
+        self.p1Fleat = Fleat()
+        self.p2Fleat = Fleat()
+        self.current_player = 1
+        self.selected_ship = None
+        self.ship_orientation = 'H'
+        self.init_UI()
 
-    def create_menu(self):
-        self.title_label = TitleText(self, "Bataille Navale")
-        self.title_label.place(relx=0.5, rely=0.15, anchor="center")
-        self.menu_frame = GameChoice(self, self)
-        self.menu_frame.place(relx=0.5, rely=0.5, anchor="center")
+    def init_UI(self):
+        self.clear_screen()
+        self.create_ship_selection_area()
+        self.create_orientation_selection_area()
+        self.create_game_board_area()
+        tk.Button(self, text="Start Player Vs Player", command=self.init_player_vs_player, bg='turquoise', width=20, height=2).pack(side=tk.TOP, pady=10)
+        tk.Button(self, text="Leave the game", command=self.quit, bg='turquoise', width=20, height=2).pack(side=tk.TOP, pady=10)
+
+    def create_ship_selection_area(self):
+        self.ship_selection_frame = tk.Frame(self, bg='light blue')
+        self.ship_selection_frame.pack(side=tk.LEFT, fill=tk.Y, padx=10)
+        # Ajouter un espace en haut pour descendre les boutons
+        spacer = tk.Frame(self.ship_selection_frame, height=200, bg='light blue')
+        spacer.pack(side=tk.TOP, fill=tk.X)
+
+    def create_orientation_selection_area(self):
+        # Ce cadre contiendra les boutons d'orientation
+        self.orientation_selection_frame = tk.Frame(self, bg='light blue')
+        self.orientation_selection_frame.pack(side=tk.TOP, fill=tk.X, pady=(0, 0))  # Réduisez pady pour rapprocher les boutons de la grille
+
+
+    def create_game_board_area(self):
+        self.game_board_frame = tk.Frame(self, bg='light blue')
+        # Ajouter un espace à gauche de la grille pour la décaler vers la droite
+        self.game_board_frame.pack(side=tk.LEFT, padx=(50, 10))  # Le premier élément de padx est l'espace à gauche
 
     def clear_screen(self):
         for widget in self.winfo_children():
             widget.destroy()
 
+    def select_ship(self, ship_name):
+        self.selected_ship = ship_name
+        print(f"Selected ship: {ship_name}")
+
+    def set_orientation(self, orientation):
+        self.ship_orientation = orientation
+        print(f"Orientation set to: {orientation}")
+
     def init_player_vs_player(self):
         self.clear_screen()
-        # Initialiser l'interface pour le jeu Player Vs Player ici
-        self.title_label = TitleText(self, "Bataille Navale - Joueur Vs Joueur")
-        self.title_label.place(relx=0.5, rely=0.15, anchor="center")
-        # Ajouter plus d'éléments pour le jeu
+        self.setup_preparation_phase()
+
+    def setup_preparation_phase(self):
+        self.clear_screen()
+        self.create_ship_selection_area()
+        self.create_orientation_selection_area()
+        self.create_game_board_area()
+        self.show_ship_selection()
+        self.display_board()
+
+
+    def show_ship_selection(self):
+        for ship_name, length in self.p1Fleat.ships.items():
+            if ship_name not in self.p1Fleat.placed_ships:
+                button_cmd = partial(self.select_ship, ship_name)
+                tk.Button(self.ship_selection_frame, text=f"Place {ship_name}", command=button_cmd, bg='sky blue', width=15, height=1).pack(pady=20)
+        # Placez les boutons d'orientation en haut à droite
+        tk.Button(self.orientation_selection_frame, text="Orientation Horizontal", command=lambda: self.set_orientation('H'), bg='sky blue', width=20, height=1).pack(side=tk.LEFT, padx=30)
+        tk.Button(self.orientation_selection_frame, text="Orientation Vertical", command=lambda: self.set_orientation('V'), bg='sky blue', width=20, height=1).pack(side=tk.LEFT, padx=30)
+    def display_board(self):
+        self.board_frame = tk.Frame(self.game_board_frame, bg='navy')
+        # Pas besoin de pady ici si on veut que la grille soit juste en dessous des boutons d'orientation
+        self.board_frame.pack(side=tk.TOP)
+        self.canvas_refs = {}  # Dictionnaire pour stocker les références des Canvas
+        for i in range(10):
+            for j in range(10):
+                cell = tk.Canvas(self.board_frame, bg='white', width=40, height=40, highlightbackground="black")
+                cell.grid(row=i, column=j, padx=1, pady=1)
+                cell.bind("<Button-1>", lambda event, row=i, col=j: self.place_ship(row, col))
+                self.canvas_refs[(i, j)] = cell  # Stocker la référence avec les coordonnées comme clé
+
+    def place_ship(self, row, col):
+        if not self.selected_ship:
+            print("No ship selected.")
+            return
+        fleet = self.p1Fleat if self.current_player == 1 else self.p2Fleat
+        length = fleet.ships[self.selected_ship]
+        if self.validate_placement(row, col, length):
+            self.update_board(row, col, length)
+            fleet.placed_ships[self.selected_ship] = (row, col, self.ship_orientation)
+            self.selected_ship = None
+            if len(fleet.placed_ships) == len(fleet.ships):
+                self.switch_player()
+        else:
+            print("Invalid placement. Try again.")
+
+    def validate_placement(self, row, col, length):
+        fleet = self.p1Fleat if self.current_player == 1 else self.p2Fleat
+        board = self.p1Board if self.current_player == 1 else self.p2Board
+
+        if self.ship_orientation == 'H':
+            if col + length > 10:
+                return False
+            for i in range(col, col + length):
+                if board.playzone[row][i] != 0:
+                    return False
+        else:  # Orientation 'V'
+            if row + length > 10:
+                return False
+            for i in range(row, row + length):
+                if board.playzone[i][col] != 0:
+                    return False
+        
+        return True
+
+    def update_board(self, row, col, length):
+        fleet = self.p1Fleat if self.current_player == 1 else self.p2Fleat
+        board = self.p1Board if self.current_player == 1 else self.p2Board
+        
+        if self.ship_orientation == 'H':
+            for i in range(col, col + length):
+                board.playzone[row][i] = 1  # Assuming 1 represents a ship part
+                self.draw_ship_part(row, i)
+        else:  # Orientation 'V'
+            for i in range(row, row + length):
+                board.playzone[i][col] = 1  # Assuming 1 represents a ship part
+                self.draw_ship_part(i, col)
+
+    def draw_ship_part(self, row, col):
+        # Utiliser le dictionnaire de références pour accéder directement au Canvas désiré
+        cell = self.canvas_refs.get((row, col))
+        if cell:
+            cell.configure(bg='gray')
+        else:
+            print(f"Unable to find canvas at row {row}, column {col}.")
+
+        
+        if cell:
+            cell.configure(bg='gray')
+        else:
+            print(f"Unable to find canvas at row {row}, column {col}.")
+
+    def switch_player(self):
+        if self.current_player == 1:
+            self.current_player = 2
+            self.p1Fleat = Fleat()  # Reset for new game setup
+            self.setup_preparation_phase()
+        else:
+            self.start_game()
+
+    def start_game(self):
+        # Transition to game phase
+        print("Starting the game...")
 
     def quit_game(self):
         self.quit()
-
-class TitleText(tk.Label):
-    def __init__(self, master, t):
-        super().__init__(master, text=t, bg="light blue", fg='black', font=('Times New Roman', 30, "bold"))
 
 if __name__ == '__main__':
     app = Menu()
