@@ -97,17 +97,31 @@ class Menu(tk.Tk):
         # Placez les boutons d'orientation en haut à droite
         tk.Button(self.orientation_selection_frame, text="Orientation Horizontal", command=lambda: self.set_orientation('H'), bg='sky blue', width=20, height=1).pack(side=tk.LEFT, padx=30)
         tk.Button(self.orientation_selection_frame, text="Orientation Vertical", command=lambda: self.set_orientation('V'), bg='sky blue', width=20, height=1).pack(side=tk.LEFT, padx=30)
+        
     def display_board(self):
+        # Créer un cadre pour la grille de jeu dans le cadre principal 'game_board_frame'
         self.board_frame = tk.Frame(self.game_board_frame, bg='navy')
-        # Pas besoin de pady ici si on veut que la grille soit juste en dessous des boutons d'orientation
-        self.board_frame.pack(side=tk.TOP)
+        self.board_frame.pack(side=tk.TOP, pady=0)
+        
+        # Ajouter des labels pour les numéros de ligne sur le côté gauche de la grille
+        for row in range(1, 11):
+            label = tk.Label(self.board_frame, text=str(row), bg='navy', fg='white', width=2)
+            label.grid(row=row, column=0, sticky="e")
+
+        # Ajouter des labels pour les lettres de colonne en haut de la grille
+        for col in range(1, 11):
+            label = tk.Label(self.board_frame, text=chr(64 + col), bg='navy', fg='white', width=2)
+            label.grid(row=0, column=col, sticky="n")
+        
+        # Générer la grille de jeu
         self.canvas_refs = {}  # Dictionnaire pour stocker les références des Canvas
-        for i in range(10):
-            for j in range(10):
+        for i in range(1, 11):
+            for j in range(1, 11):
                 cell = tk.Canvas(self.board_frame, bg='white', width=40, height=40, highlightbackground="black")
                 cell.grid(row=i, column=j, padx=1, pady=1)
-                cell.bind("<Button-1>", lambda event, row=i, col=j: self.place_ship(row, col))
-                self.canvas_refs[(i, j)] = cell  # Stocker la référence avec les coordonnées comme clé
+                cell.bind("<Button-1>", lambda event, row=i-1, col=j-1: self.place_ship(row, col))  # Les indices commencent à 1 dans l'interface
+                self.canvas_refs[(i-1, j-1)] = cell  # Stocker la référence avec les coordonnées comme clé
+
 
     def place_ship(self, row, col):
         if not self.selected_ship:
