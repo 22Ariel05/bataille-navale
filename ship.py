@@ -7,7 +7,7 @@ class Ship:
         self.lenght = lenght
         self.isSunk = False
         self.isPlaced = False
-        self.shipNode = np.array(dtype=ShipNode)
+        self.shipNode = []
 
     def getLenght(self):
         return self.lenght
@@ -29,7 +29,8 @@ class Ship:
 
     def whenPlaced(self, listOfcoords):
         for i in range(len(listOfcoords)):
-            np.append(self.shipNode, ShipNode(listOfcoords[i,0], listOfcoords[i,1]))
+            self.shipNode.append(ShipNode(listOfcoords[i,0], listOfcoords[i,1]))
+        self.isPlaced = True
 
     def onHit(self, coordsOnHit):
         for shipNode in self.shipNode:
@@ -41,3 +42,7 @@ class Ship:
             if shipNode.getIsNotHit():
                 return False
         return True
+    
+    def onDeletion(self):
+        self.isPlaced = False
+        self.isPlaced = []
