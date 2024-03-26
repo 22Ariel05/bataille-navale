@@ -30,27 +30,27 @@ class Board:
         
     def fitsWherePlayerWants(self, coords, rotate, ship):
         if (rotate):
-            if(coords[1] + ship.getLenght - 1 <= 10):
+            if(coords[1] + ship.get_length() - 1 <= 10):
                 return True
             else:
                 return False
         else:
-            if(coords[0] + ship.getLenght - 1 <= 10):
+            if(coords[0] + ship.get_length() - 1 <= 10):
                 return True
             else:
                 return False
             
     def noOtherShipsPlacedWherePlayerWants(self, coords, rotate, ship):
-        if (rotate):
-            for i in range(coords[1], coords[1] + ship.getLenght - 1):
-                if (self.playzone[coords[0], i] == 1):
+        length = ship.get_length()
+        if rotate:  # Vérification verticale
+            for i in range(length):
+                if coords[0] + i >= 10 or self.playzone[coords[0] + i][coords[1]] == 1:
                     return False
-            return True
-        else:
-            for i in range(coords[0], coords[0] + ship.getLenght - 1):
-                if (self.playzone[i, coords[1]] == 1):
+        else:  # Vérification horizontale
+            for i in range(length):
+                if coords[1] + i >= 10 or self.playzone[coords[0]][coords[1] + i] == 1:
                     return False
-            return True
+        return True
 
     def isValidPlacement(self, coords, rotate, ship):
         return self.noOtherShipsPlacedWherePlayerWants(coords, rotate, ship) and self.fitsWherePlayerWants(coords, rotate, ship)

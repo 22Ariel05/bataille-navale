@@ -1,45 +1,43 @@
-import numpy as np
 from shipNode import ShipNode
 
 class Ship:
-    def __init__(self, lenght):
-        self.lenght = lenght
-        self.isSunk = False
-        self.isPlaced = False
-        # Utiliser une liste vide pour initialiser shipNode
-        self.shipNode = []
+    def __init__(self, length):
+        self.length = length
+        self.sunk = False
+        self.placed = False
+        self.ship_nodes = []
 
-    def getLenght(self):
-        return self.lenght
+    def get_length(self):
+        return self.length
 
-    def getIsSunk(self):
-        return self.isSunk
+    def is_sunk(self):
+        return self.sunk
 
-    def setIsSunk(self, newIsSunk):
-        self.isSunk = newIsSunk
+    def set_sunk(self, sunk_status):
+        self.sunk = sunk_status
 
-    def getIsPlaced(self):
-        return self.isPlaced
+    def is_placed(self):
+        return self.placed
 
-    def setIsPlaced(self, newIsPlaced):
-        self.isPlaced = newIsPlaced
+    def set_placed(self, placed_status):
+        self.placed = placed_status
 
-    def showInfo(self):
-        print(f"the ship is sunk: {self.isSunk}, this ship is {self.lenght} long, this ship is placed: {self.isPlaced}")
+    def show_info(self):
+        print(f"Ship length: {self.length}, is sunk: {self.sunk}, is placed: {self.placed}")
 
-    def whenPlaced(self, listOfcoords):
-        for coord in listOfcoords:
-            # Ici, on suppose que ShipNode prend deux arguments pour les coordonnées
-            self.shipNode.append(ShipNode(coord[0], coord[1]))
+    def when_placed(self, list_of_coords):
+        self.ship_nodes = [ShipNode(coord[0], coord[1]) for coord in list_of_coords]
+        self.set_placed(True)
 
-    def onHit(self, coordsOnHit):
-        for shipNode in self.shipNode:
-            if shipNode.getCoordlenght() == coordsOnHit[0] and shipNode.getCoordheight() == coordsOnHit[1]: 
-                shipNode.onHit()
+    def on_hit(self, coords_on_hit):
+        for node in self.ship_nodes:
+            if node.get_coords() == coords_on_hit:
+                node.on_hit()
+                break
+        self.test_is_sunk()
 
-    def testIsSunk(self):
-        for shipNode in self.shipNode:
-            if shipNode.getIsNotHit():
-                return False
-        self.isSunk = True  # Marquer le navire comme coulé si tous les nœuds sont touchés
-        return True
+    def test_is_sunk(self):
+        if all(node.is_hit() for node in self.ship_nodes):
+            self.set_sunk(True)
+            return True
+        return False

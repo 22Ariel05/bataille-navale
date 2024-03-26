@@ -1,5 +1,5 @@
 from board import Board
-from fleat import Fleat
+from fleet import Fleat
 
 class Game:
     
