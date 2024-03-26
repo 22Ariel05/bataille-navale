@@ -28,6 +28,6 @@ class Fleat:
             return
 
     def isFleatDestroyed(self):
-        if (self.airCarry.getIsSunk() and self.cruser.getIsSunk and self.destroy1.getIsSunk and self.destroy2.getIsSunk and self.sub1.getIsSunk and self.sub2.getIsSunk):
+        if (self.airCarry.getIsSunk() and self.cruser.getIsSunk() and self.destroy1.getIsSunk() and self.destroy2.getIsSunk() and self.sub1.getIsSunk() and self.sub2.getIsSunk()):
             return True
         return False
