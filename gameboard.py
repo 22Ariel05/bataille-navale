@@ -1,5 +1,7 @@
 from functools import partial
 from fleet import Fleet
+from board import Board
+from ship import Ship
 import tkinter as tk
 import sys
 import os
@@ -8,7 +10,7 @@ import os
 current_dir = os.path.dirname(__file__)
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
-from board import Board
+
 
 class TitleText(tk.Label):
     def __init__(self, master, t):
@@ -28,14 +30,19 @@ class Menu(tk.Tk):
         self.selected_ship = None
         self.ship_orientation = 'H'
         self.current_phase = "setup"
-        self.current_mode = 'placing'  # Valeurs possibles: 'placing', 'removing'
+        self.current_mode = 'placing'
+        self.currentPlayerText = tk.StringVar()  # Ajouté pour gérer l'affichage du joueur actuel
         self.init_UI()
+
+
 
     def init_UI(self):
         self.clear_screen()
         # Ne créez pas les boutons d'orientation ici
         self.create_ship_selection_area()  # Cela peut rester si vous voulez initialement cacher cette zone aussi
         self.create_game_board_area()
+        currentPlayerLabel = tk.Label(self, textvariable=self.currentPlayerText, font=('Times New Roman', 20), bg='light blue')
+        currentPlayerLabel.pack(side=tk.TOP, pady=10)
         tk.Button(self, text="Start Player Vs Player", command=self.init_player_vs_player, bg='turquoise', width=20, height=2).pack(side=tk.TOP, pady=10)
         tk.Button(self, text="Leave the game", command=self.quit, bg='turquoise', width=20, height=2).pack(side=tk.TOP, pady=10)
 
@@ -71,7 +78,7 @@ class Menu(tk.Tk):
 
     def set_orientation(self, orientation):
         self.ship_orientation = orientation
-        print(f"Orientation set to: {orientation}")  # Confirmez que cette partie fonctionne comme prévu
+        print(f"Orientation set to: {orientation}")
 
     def init_player_vs_player(self):
         self.current_phase = "setup"
@@ -79,15 +86,39 @@ class Menu(tk.Tk):
 
     def setup_preparation_phase(self):
         self.clear_screen()
+        # Création du label pour afficher le joueur actuel uniquement pendant cette phase
+        currentPlayerLabel = tk.Label(self, textvariable=self.currentPlayerText, font=('Times New Roman', 20), bg='light blue')
+        currentPlayerLabel.pack(side=tk.TOP, pady=10)
+        # Mise à jour du texte en fonction du joueur actuel
+        if self.current_player == 1:
+            self.currentPlayerText.set("Joueur 1 joue")
+        else:
+            self.currentPlayerText.set("Joueur 2 joue")
+        # Continuation de la méthode avec la création de la zone de sélection des navires, etc.
         self.create_ship_selection_area()
-        self.create_orientation_selection_area()  # Création des boutons d'orientation ici
+        self.create_orientation_selection_area() 
         self.create_game_board_area()
         self.show_ship_selection()
         self.display_board()
-        
         # Ajout du bouton "Retirer"
         tk.Button(self, text="Retirer", command=self.remove_ship, bg='red', width=15, height=2).pack(side=tk.TOP, pady=10)
-
+        tk.Button(self, text="Prêt", command=self.finalize_preparation, bg='green', width=10, height=2).pack(side=tk.BOTTOM, pady=20)
+        
+    def finalize_preparation(self):
+        # Vérification si le joueur actuel est le joueur 1
+        if self.current_player == 1:
+            # Vérification si tous les navires du joueur 1 sont placés
+            if self.p1Fleet.all_ships_placed():
+                self.current_player = 2  # Passer au joueur 2
+                self.setup_preparation_phase()  # Réinitialiser la phase de préparation pour le joueur 2
+            else:
+                print("Tous les navires doivent être placés.")
+        else:
+            # Pour le joueur 2, vérifier si tous ses navires sont placés
+            if self.p2Fleet.all_ships_placed():
+                self.start_game()  # Tous les navires sont placés, démarrer le jeu
+            else:
+                print("Tous les navires doivent être placés.")
 
     def show_ship_selection(self):
         for ship_name in ['airCarrier', 'cruiser', 'destroyer1', 'destroyer2', 'submarine1', 'submarine2']:
@@ -126,42 +157,9 @@ class Menu(tk.Tk):
                 self.canvas_refs[(i, j)] = cell
 
     def place_ship(self, row, col):
-        if self.current_mode == 'placing':
-            if not self.selected_ship:
-                print("No ship selected.")
-                return
-
-            fleet = self.p1Fleet if self.current_player == 1 else self.p2Fleet
-            ship = getattr(fleet, self.selected_ship, None)
-            if not ship or ship.is_placed():
-                print("Ship not available or already placed.")
-                return
-
-            rotate = self.ship_orientation == 'V'  # True si 'V', sinon False
-            board = self.p1Board if self.current_player == 1 else self.p2Board
-
-            if board.isValidPlacement((row, col), rotate, ship):
-                if rotate:  # Placement vertical
-                    for i in range(ship.get_length()):
-                        self.draw_ship_part(row + i, col, "gray")
-                        board.playzone[row + i][col] = 1  # Marquez la case comme occupée
-                else:  # Placement horizontal
-                    for i in range(ship.get_length()):
-                        self.draw_ship_part(row, col + i, "gray")
-                        board.playzone[row][col + i] = 1  # Marquez la case comme occupée
-
-                ship.set_placed(True)
-                print(f"{self.selected_ship} placed.")
-            else:
-                print("Invalid placement. Try again.")
-        elif self.current_mode == 'removing':
-            self.remove_ship_from_grid(row, col)
-
-            
-    def remove_ship(self):
-        self.current_mode = 'removing'
-        print("Mode: Retirer un navire. Cliquez sur un navire dans la grille pour le retirer.")
-
+        if not self.selected_ship:
+            print("No ship selected.")
+            return
 
         fleet = self.p1Fleet if self.current_player == 1 else self.p2Fleet
         ship = getattr(fleet, self.selected_ship, None)
@@ -169,42 +167,78 @@ class Menu(tk.Tk):
             print("Ship not available or already placed.")
             return
 
-        rotate = self.ship_orientation == 'V'  # True si 'V', sinon False
+        rotate = self.ship_orientation == 'V'
         board = self.p1Board if self.current_player == 1 else self.p2Board
 
         if board.isValidPlacement((row, col), rotate, ship):
-            if rotate:  # Placement vertical
+            list_of_coords = []
+            if rotate:
                 for i in range(ship.get_length()):
-                    self.draw_ship_part(row + i, col)
-                    board.playzone[row + i][col] = 1  # Marquez la case comme occupée
-            else:  # Placement horizontal
+                    self.draw_ship_part(row + i, col, "gray")
+                    board.playzone[row + i][col] = 1
+                    list_of_coords.append((row + i, col))
+            else:
                 for i in range(ship.get_length()):
-                    self.draw_ship_part(row, col + i)
-                    board.playzone[row][col + i] = 1  # Marquez la case comme occupée
+                    self.draw_ship_part(row, col + i, "gray")
+                    board.playzone[row][col + i] = 1
+                    list_of_coords.append((row, col + i))
 
             ship.set_placed(True)
+            ship.when_placed(list_of_coords)
             print(f"{self.selected_ship} placed.")
         else:
             print("Invalid placement. Try again.")
 
 
     def remove_ship_from_grid(self, row, col):
-        board = self.p1Board if self.current_player == 1 else self.p2Board
-        ship_identifier = board.playzone[row][col]  # Supposons que cela identifie le navire
-        
-        if ship_identifier:  # Si un navire est identifié à cette case
-            for r in range(10):
-                for c in range(10):
-                    if board.playzone[r][c] == ship_identifier:
-                        board.playzone[r][c] = 0  # Réinitialiser la case
-                        self.draw_ship_part(r, c, "white")  # Réinitialiser visuellement la case
+        if not self.selected_ship:
+            print("Veuillez sélectionner un navire à retirer.")
+            return
 
-            # Réinitialiser l'état du navire ici si nécessaire
-            self.current_mode = 'placing'
-            print("Navire retiré.")
+        fleet = self.p1Fleet if self.current_player == 1 else self.p2Fleet
+        ship = getattr(fleet, self.selected_ship, None)
+
+        if ship and ship.is_placed():
+            for node in ship.ship_nodes:
+                x, y = node.get_coords()
+                # Réinitialisation de la case de manière conditionnelle
+                if self.current_player == 1:
+                    self.p1Board.playzone[x][y] = 0
+                else:
+                    self.p2Board.playzone[x][y] = 0
+                # Effacer visuellement la case sur la grille
+                self.draw_ship_part(x, y, "white")
+
+            ship.set_placed(False)
+            ship.ship_nodes = []
+            print(f"Navire {self.selected_ship} retiré avec succès.")
         else:
-            print("Aucun navire à cet emplacement.")
+            print("Le navire sélectionné n'est pas placé ou n'existe pas.")
 
+
+    def remove_ship(self):
+        if not self.selected_ship:
+            print("Aucun navire sélectionné pour être retiré.")
+            return
+
+        fleet = self.p1Fleet if self.current_player == 1 else self.p2Fleet
+        ship = getattr(fleet, self.selected_ship, None)
+
+        if ship and ship.is_placed():
+            for node in ship.ship_nodes:
+                x, y = node.get_coords()
+                if self.current_player == 1:
+                    self.p1Board.playzone[x][y] = 0
+                else:
+                    self.p2Board.playzone[x][y] = 0
+                self.draw_ship_part(x, y, "white")
+
+            ship.set_placed(False)
+            ship.ship_nodes = []
+            print(f"Navire {self.selected_ship} retiré.")
+            self.selected_ship = None  # Réinitialiser le navire sélectionné
+        else:
+            print("Le navire sélectionné n'est pas placé ou n'existe pas.")
 
     def clear_ship_from_grid(self, ship):
         # Identifier les cases occupées par le navire dans self.playzone
@@ -251,9 +285,11 @@ class Menu(tk.Tk):
     def switch_player(self):
         if self.current_player == 1:
             self.current_player = 2
+            self.currentPlayerText.set("Joueur 2 joue")
             self.p1Fleet = Fleet()  # Réinitialisation de la flotte pour le nouveau joueur
         else:
             self.current_player = 1
+            self.currentPlayerText.set("Joueur 1 joue")
             self.p2Fleet = Fleet()  # Réinitialisation de la flotte pour le joueur 2
         self.setup_preparation_phase()
 
