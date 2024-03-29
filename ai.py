@@ -21,13 +21,13 @@ class Ai:
                     valid_placement = True
 
 
-    def selectShot(self, opponent_board):
+    def selectShot(self):
         # Exemple de sélection de tir aléatoire
         while True:
             row = random.randint(0, 9)
             col = random.randint(0, 9)
             if (row, col) not in self.previousShots:
                 self.previousShots.append((row, col))
-                return row, col
+                return [row, col]
 
     
