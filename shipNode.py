@@ -1,19 +1,17 @@
-
 class ShipNode:
+    def __init__(self, coord_length, coord_height):
+        self.coord_length = coord_length
+        self.coord_height = coord_height
+        self.is_not_hit = True
 
-    def __init__(self, coordlenght, coordheight):
-        self.coordlenght = coordlenght
-        self.coordheight = coordheight
-        self.isNotHit = True
+    def on_hit(self):
+        self.is_not_hit = False
 
-    def onHit(self):
-        self.isNotHit = False
+    def reset(self):
+        self.is_not_hit = True
 
-    def getIsNotHit(self):
-        return self.isNotHit
-    
-    def getCoordlenght(self):
-        return self.coordlenght
-    
-    def getCoordheight(self):
-        return self.coordheight
+    def is_hit(self):
+        return not self.is_not_hit
+
+    def get_coords(self):
+        return self.coord_length, self.coord_height

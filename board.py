@@ -29,31 +29,37 @@ class Board:
             return False
         
     def fitsWherePlayerWants(self, coords, rotate, ship):
-        if (rotate):
-            if(coords[1] + ship.getLenght - 1 <= 10):
-                return True
-            else:
-                return False
+        if rotate:
+            # Pour un placement vertical, vérifiez si le navire dépasse le bas de la grille.
+            return (coords[0] + ship.get_length() <= 10)
         else:
-            if(coords[0] + ship.getLenght - 1 <= 10):
-                return True
-            else:
-                return False
+            # Pour un placement horizontal, vérifiez si le navire dépasse le côté droit de la grille.
+            return (coords[1] + ship.get_length() <= 10)
+
             
     def noOtherShipsPlacedWherePlayerWants(self, coords, rotate, ship):
-        if (rotate):
-            for i in range(coords[1], coords[1] + ship.getLenght - 1):
-                if (self.playzone[coords[0], i] == 1):
+        length = ship.get_length()
+        # Pour un placement vertical
+        if rotate:
+            # Vérifiez si le placement dépasse le bas de la grille
+            if coords[0] + length > 10:
+                return False
+            for i in range(length):
+                # Vérifiez si la position est déjà occupée
+                if self.playzone[coords[0] + i][coords[1]] == 1:
                     return False
-            return True
+        # Pour un placement horizontal
         else:
-            for i in range(coords[0], coords[0] + ship.getLenght - 1):
-                if (self.playzone[i, coords[1]] == 1):
+            # Vérifiez si le placement dépasse le côté droit de la grille
+            if coords[1] + length > 10:
+                return False
+            for i in range(length):
+                # Vérifiez si la position est déjà occupée
+                if self.playzone[coords[0]][coords[1] + i] == 1:
                     return False
-            return True
+        return True
+
 
     def isValidPlacement(self, coords, rotate, ship):
-        if (self.playzone.noOtherShipsPlacedWherePlayerWants(coords, rotate, ship) or self.playzone.fitsWherePlayerWants(coords, rotate, ship)):
-            return True
-        else:
-            return False
+        return self.noOtherShipsPlacedWherePlayerWants(coords, rotate, ship) and self.fitsWherePlayerWants(coords, rotate, ship)
+

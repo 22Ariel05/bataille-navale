@@ -1,4 +1,4 @@
-from ui.menu import Menu
+from menu import Menu
 
 menu = Menu()
 menu.printMenu()

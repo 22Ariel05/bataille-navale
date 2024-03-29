@@ -1,5 +1,5 @@
 from board import Board
-from fleat import Fleat
+from fleet import Fleet
 
 class Game:
     
@@ -7,8 +7,8 @@ class Game:
         self.P1Board = Board()
         self.p2Board = Board()
 
-        self.p1Fleat = Fleat()
-        self.p2Fleat = Fleat()
+        self.p1Fleat = Fleet()
+        self.p2Fleat = Fleet()
 
         self.isAiOn = isAiOn
 

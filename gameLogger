@@ -4,7 +4,7 @@ class GameLogger:
     def __init__(self, filename):
         self.filename = filename
 
-    def log_game(self, winner, moves, hits, is_with_ai):
+    def log_game(self, gameResume):
         with open(self.filename, mode='a', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow([winner, '|'.join(moves), '|'.join(hits), is_with_ai])
+            writer.writerow()
