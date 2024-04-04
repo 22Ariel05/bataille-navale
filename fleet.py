@@ -34,3 +34,12 @@ class Fleet:
     def is_fleet_destroyed(self):
         """Vérifie si toute la flotte est coulée."""
         return all(ship.is_sunk() for ship in [self.airCarrier, self.cruiser, self.destroyer1, self.destroyer2, self.submarine1, self.submarine2])
+    
+    def check_if_ship_sunk(self, x, y):
+        # Vous devez déterminer si le tir à la position (x, y) a coulé un navire
+        # Retourne True si un navire est coulé, sinon False
+        for ship in self.ships:  # Assumons que Fleet a une liste de navires
+            if ship.is_hit(x, y):
+                if ship.is_sunk():  # Vous devez implémenter la méthode is_sunk dans la classe Ship
+                    return True
+        return False
